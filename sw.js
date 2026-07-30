@@ -1,5 +1,10 @@
-const CACHE = 'khoroch-v1';
-const ASSETS = ['/', '/index.html', '/manifest.json', '/icon.svg'];
+const CACHE = 'khoroch-v2';
+const ASSETS = [
+  '/khoroch/',
+  '/khoroch/index.html',
+  '/khoroch/manifest.json',
+  '/khoroch/icon.svg'
+];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
