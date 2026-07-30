@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Khoroch">
+<meta name="theme-color" content="#7c6af7">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>Khoroch</title>
+<style>
+:root {
+  --bg: #0f0f11;
+  --surface: #1a1a1f;
+  --surface2: #242429;
+  --border: #2e2e36;
+  --text: #e8e6e0;
+  --muted: #7a7880;
+  --accent: #7c6af7;
+  --accent2: #a594f9;
+  --green: #3ecf8e;
+  --red: #f66;
+  --amber: #f5a623;
+  --nav-h: 64px;
+  --header-h: 56px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, sans-serif; font-size: 15px; }
+.app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+.header { height: var(--header-h); background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 16px; gap: 12px; flex-shrink: 0; }
+.header-title { font-size: 17px; font-weight: 700; letter-spacing: -.4px; flex: 1; }
+.header-action { background: none; border: none; color: var(--accent2); font-size: 14px; font-family: inherit; padding: 8px; cursor: pointer; }
+.pages { flex: 1; overflow: hidden; position: relative; }
+.page { position: absolute; inset: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px 16px calc(var(--nav-h) + 16px); display: none; }
+.page.active { display: block; }
+.bottom-nav { height: var(--nav-h); background: var(--surface); border-top: 1px solid var(--border); display: flex; align-items: stretch; flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom); }
+.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border: none; background: none; color: var(--muted); font-size: 10px; font-family: inherit; cursor: pointer; padding: 8px 0; transition: color .15s; }
+.nav-item.active { color: var(--accent2); }
+.nav-item svg { width: 22px; height: 22px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+.stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+.stat-val { font-size: 28px; font-weight: 700; letter-spacing: -1px; }
+.stat-val.accent { color: var(--accent2); }
+.stat-val.green { color: var(--green); }
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.stats-grid .card { margin: 0; }
+.form-group { margin-bottom: 14px; }
+label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+input, select, textarea { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: inherit; font-size: 16px; padding: 13px 14px; appearance: none; -webkit-appearance: none; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
+select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a7880' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+textarea { resize: none; min-height: 80px; }
+.amount-input { font-size: 32px !important; font-weight: 700; letter-spacing: -1px; text-align: center; padding: 18px 14px !important; }
+.btn { border: none; border-radius: 10px; cursor: pointer; font-family: inherit; font-size: 15px; font-weight: 600; padding: 14px 20px; width: 100%; transition: opacity .15s; }
+.btn:active { opacity: .75; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-row { display: flex; gap: 10px; }
+.btn-row .btn { flex: 1; }
+.btn-ghost { background: var(--surface2); color: var(--text); }
+.btn-sm { padding: 8px 14px; font-size: 13px; width: auto; border-radius: 8px; background: var(--surface2); border: none; color: var(--text); font-family: inherit; cursor: pointer; }
+.btn-danger-sm { background: transparent; border: 1px solid var(--border); color: var(--red); padding: 8px 14px; font-size: 13px; width: auto; border-radius: 8px; font-family: inherit; cursor: pointer; }
+.section-h { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin: 18px 0 10px; }
+.list-row { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.list-row:last-child { border-bottom: none; }
+.list-icon { width: 38px; height: 38px; border-radius: 10px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.list-body { flex: 1; min-width: 0; }
+.list-title { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.list-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.list-amount { font-size: 15px; font-weight: 700; flex-shrink: 0; }
+.tag { display: inline-block; border-radius: 20px; font-size: 11px; font-weight: 500; padding: 3px 9px; }
+.tag-cat { background: rgba(124,106,247,.15); color: var(--accent2); }
+.tag-event { background: rgba(245,166,35,.15); color: var(--amber); }
+.progress-wrap { background: var(--surface2); border-radius: 100px; height: 5px; overflow: hidden; margin-top: 8px; }
+.progress-bar { height: 100%; border-radius: 100px; background: var(--accent); }
+.progress-bar.over { background: var(--red); }
+.progress-bar.warn { background: var(--amber); }
+.event-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+.event-name { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+.event-dates { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+.event-row { display: flex; gap: 16px; margin-bottom: 10px; flex-wrap: wrap; }
+.event-stat-label { font-size: 11px; color: var(--muted); }
+.event-stat-val { font-size: 16px; font-weight: 700; }
+.event-actions { display: flex; gap: 8px; margin-top: 12px; }
+.sheet-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 200; }
+.sheet-bg.open { display: block; }
+.sheet { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-radius: 20px 20px 0 0; border-top: 1px solid var(--border); padding: 0 16px calc(env(safe-area-inset-bottom) + 16px); max-height: 90dvh; overflow-y: auto; z-index: 201; transform: translateY(100%); transition: transform .25s cubic-bezier(.4,0,.2,1); }
+.sheet-bg.open .sheet { transform: translateY(0); }
+.sheet-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 12px auto 16px; }
+.sheet-title { font-size: 17px; font-weight: 700; margin-bottom: 18px; }
+.toast { position: fixed; bottom: calc(var(--nav-h) + 12px); left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 18px; font-size: 13px; opacity: 0; transition: all .2s; z-index: 300; white-space: nowrap; pointer-events: none; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.ok { border-color: var(--green); color: var(--green); }
+.empty { text-align: center; padding: 48px 16px; color: var(--muted); }
+.empty div { font-size: 32px; margin-bottom: 8px; }
+.empty p { font-size: 14px; }
+.filter-bar { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.filter-bar input, .filter-bar select { font-size: 14px; padding: 10px 12px; }
+.cat-row { display: flex; flex-direction: column; gap: 6px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.cat-row:last-child { border-bottom: none; }
+.cat-meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="header-title" id="header-title">💸 Khoroch</div>
+    <button class="header-action" id="header-btn" style="display:none" onclick="headerAction()"></button>
+  </div>
+  <div class="pages">
+
+    <div class="page active" id="page-dashboard">
+      <div id="dash-month" style="font-size:12px;color:var(--muted);margin-bottom:12px"></div>
+      <div class="stats-grid" id="dash-stats"></div>
+      <div class="section-h">By category</div>
+      <div class="card" id="dash-by-cat"></div>
+      <div class="section-h">Recent</div>
+      <div class="card" id="dash-recent"></div>
+    </div>
+
+    <div class="page" id="page-add">
+      <div class="form-group">
+        <label>Amount (BDT)</label>
+        <input type="number" inputmode="decimal" id="f-amount" class="amount-input" placeholder="0.00" step="0.01" min="0">
+      </div>
+      <div class="form-group"><label>Date</label><input type="date" id="f-date"></div>
+      <div class="form-group"><label>Category</label><select id="f-category"></select></div>
+      <div class="form-group"><label>Event <span style="color:var(--muted)">(optional)</span></label><select id="f-event"><option value="">— none —</option></select></div>
+      <div class="form-group"><label>Description</label><input type="text" id="f-desc" placeholder="What was this for?"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="clearForm()">Clear</button>
+        <button class="btn btn-primary" onclick="saveExpense()">Save</button>
+      </div>
+    </div>
+
+    <div class="page" id="page-history">
+      <div class="filter-bar">
+        <input type="month" id="filter-month" onchange="renderHistory()">
+        <select id="filter-cat" onchange="renderHistory()"><option value="">All categories</option></select>
+        <select id="filter-event" onchange="renderHistory()"><option value="">All events</option></select>
+        <input type="text" id="filter-search" placeholder="Search…" oninput="renderHistory()">
+      </div>
+      <div id="history-list"></div>
+      <div id="history-total" style="text-align:center;font-size:13px;color:var(--muted);padding:8px 0 4px"></div>
+    </div>
+
+    <div class="page" id="page-events">
+      <div id="events-list"></div>
+    </div>
+
+    <div class="page" id="page-more">
+      <div class="section-h">Categories</div>
+      <div class="card" id="categories-list"></div>
+      <button class="btn btn-ghost" style="margin-top:10px" onclick="openCatSheet()">+ Add category</button>
+      <div class="section-h" style="margin-top:24px">Settings</div>
+      <div class="card">
+        <div class="form-group"><label>Currency symbol</label><input type="text" id="s-currency" value="৳" style="max-width:100px"></div>
+        <div class="form-group"><label>Your name</label><input type="text" id="s-name" placeholder="e.g. Farhad"></div>
+        <button class="btn btn-primary" onclick="saveSettings()">Save settings</button>
+      </div>
+      <div class="section-h" style="margin-top:24px">Data</div>
+      <div class="card">
+        <div class="btn-row" style="margin-bottom:10px">
+          <button class="btn btn-ghost" onclick="exportData()">Export JSON</button>
+          <button class="btn btn-ghost" onclick="importClick()">Import JSON</button>
+        </div>
+        <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+        <button class="btn" style="background:rgba(255,100,100,.1);color:var(--red)" onclick="if(confirm('Delete ALL data? Cannot undo.'))resetAll()">Reset all data</button>
+      </div>
+    </div>
+
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-item active" id="nav-dashboard" onclick="nav('dashboard',this)">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Home
+    </button>
+    <button class="nav-item" id="nav-add" onclick="nav('add',this)">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      Add
+    </button>
+    <button class="nav-item" id="nav-history" onclick="nav('history',this)">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      History
+    </button>
+    <button class="nav-item" id="nav-events" onclick="nav('events',this)">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Events
+    </button>
+    <button class="nav-item" id="nav-more" onclick="nav('more',this)">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="19" r="1" fill="currentColor"/></svg>
+      More
+    </button>
+  </nav>
+</div>
+
+<!-- Sheets -->
+<div class="sheet-bg" id="sheet-event-bg" onclick="closeSheets(event)">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="sheet-event-title">New event</div>
+    <div class="form-group"><label>Event name</label><input type="text" id="me-name" placeholder="e.g. Honeymoon, Cox's Bazar"></div>
+    <div class="form-group"><label>Start date</label><input type="date" id="me-start"></div>
+    <div class="form-group"><label>End date</label><input type="date" id="me-end"></div>
+    <div class="form-group"><label>Budget (optional)</label><input type="number" inputmode="decimal" id="me-budget" placeholder="0.00"></div>
+    <div class="btn-row" style="margin-bottom:8px">
+      <button class="btn btn-ghost" onclick="closeSheets()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEvent()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet-bg" id="sheet-cat-bg" onclick="closeSheets(event)">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">New category</div>
+    <div class="form-group"><label>Name</label><input type="text" id="mc-name" placeholder="e.g. Transport"></div>
+    <div class="form-group"><label>Icon (emoji)</label><input type="text" id="mc-icon" placeholder="🚌" maxlength="2"></div>
+    <div class="form-group"><label>Monthly budget (optional)</label><input type="number" inputmode="decimal" id="mc-budget" placeholder="0.00"></div>
+    <div class="btn-row" style="margin-bottom:8px">
+      <button class="btn btn-ghost" onclick="closeSheets()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveCat()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet-bg" id="sheet-edit-bg" onclick="closeSheets(event)">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Edit expense</div>
+    <div class="form-group"><label>Amount</label><input type="number" inputmode="decimal" id="ee-amount" class="amount-input" step="0.01"></div>
+    <div class="form-group"><label>Date</label><input type="date" id="ee-date"></div>
+    <div class="form-group"><label>Category</label><select id="ee-category"></select></div>
+    <div class="form-group"><label>Event</label><select id="ee-event"><option value="">— none —</option></select></div>
+    <div class="form-group"><label>Description</label><input type="text" id="ee-desc"></div>
+    <div class="btn-row" style="margin-bottom:8px">
+      <button class="btn btn-ghost" onclick="closeSheets()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEdit()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let DB={expenses:[],events:[],categories:[
+  {id:'c1',name:'Food',icon:'🍛',budget:0},{id:'c2',name:'Transport',icon:'🚌',budget:0},
+  {id:'c3',name:'Utilities',icon:'💡',budget:0},{id:'c4',name:'Health',icon:'💊',budget:0},
+  {id:'c5',name:'Shopping',icon:'🛍️',budget:0},{id:'c6',name:'Entertainment',icon:'🎬',budget:0},
+  {id:'c7',name:'Rent',icon:'🏠',budget:0},{id:'c8',name:'Miscellaneous',icon:'📦',budget:0},
+],settings:{currency:'৳',name:''}};
+let editId=null,editEventId=null,currentPage='dashboard';
+
+function save(){localStorage.setItem('khoroch_db',JSON.stringify(DB));}
+function load(){const d=localStorage.getItem('khoroch_db');if(d)DB=JSON.parse(d);}
+function uid(){return 'x'+Math.random().toString(36).slice(2,10);}
+function fmt(n){return DB.settings.currency+Number(n).toLocaleString('en-BD',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function getCat(id){return DB.categories.find(c=>c.id===id)||{name:'?',icon:'?'};}
+function getEvent(id){return DB.events.find(e=>e.id===id);}
+function thisMonth(){return new Date().toISOString().slice(0,7);}
+function toast(msg,type='ok'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+type+' show';
+  setTimeout(()=>t.className='toast',2000);
+}
+
+function nav(page,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  if(btn)btn.classList.add('active');
+  currentPage=page;
+  const titles={dashboard:'💸 Khoroch',add:'Add expense',history:'History',events:'Events',more:'More'};
+  document.getElementById('header-title').textContent=titles[page];
+  const hb=document.getElementById('header-btn');
+  if(page==='events'){hb.style.display='';hb.textContent='+ New';}
+  else hb.style.display='none';
+  if(page==='dashboard')renderDashboard();
+  if(page==='history')renderHistory();
+  if(page==='events')renderEvents();
+  if(page==='more'){renderCategories();loadSettings();}
+  if(page==='add'){populateFormSelects();setTodayDate();}
+}
+function headerAction(){if(currentPage==='events')openEventSheet();}
+
+function renderDashboard(){
+  const m=thisMonth(),now=new Date();
+  const mExp=DB.expenses.filter(e=>e.date.startsWith(m));
+  const total=mExp.reduce((s,e)=>s+e.amount,0);
+  document.getElementById('dash-month').textContent=now.toLocaleString('default',{month:'long',year:'numeric'});
+  document.getElementById('dash-stats').innerHTML=`
+    <div class="card"><div class="stat-label">This month</div><div class="stat-val accent">${fmt(total)}</div></div>
+    <div class="card"><div class="stat-label">Transactions</div><div class="stat-val">${mExp.length}</div></div>
+    <div class="card"><div class="stat-label">Daily avg</div><div class="stat-val">${fmt(mExp.length?(total/now.getDate()):0)}</div></div>
+    <div class="card"><div class="stat-label">Days left</div><div class="stat-val green">${new Date(now.getFullYear(),now.getMonth()+1,0).getDate()-now.getDate()}</div></div>`;
+  const byCat={};
+  mExp.forEach(e=>{byCat[e.categoryId]=(byCat[e.categoryId]||0)+e.amount;});
+  document.getElementById('dash-by-cat').innerHTML=Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([cid,amt])=>{
+    const cat=getCat(cid),budget=cat.budget||0,pct=budget?Math.min((amt/budget)*100,100):0;
+    const cls=budget&&amt>budget?'over':budget&&amt>budget*.8?'warn':'';
+    return `<div class="list-row"><div class="list-icon">${cat.icon}</div><div class="list-body"><div class="list-title">${cat.name}</div>${budget?`<div class="progress-wrap"><div class="progress-bar ${cls}" style="width:${pct}%"></div></div>`:''}</div><div class="list-amount">${fmt(amt)}</div></div>`;
+  }).join('')||'<div class="empty"><div>📊</div><p>No expenses this month</p></div>';
+  const recent=[...DB.expenses].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
+  document.getElementById('dash-recent').innerHTML=recent.map(e=>{
+    const cat=getCat(e.categoryId);
+    return `<div class="list-row"><div class="list-icon">${cat.icon}</div><div class="list-body"><div class="list-title">${e.description||cat.name}</div><div class="list-sub">${e.date} · ${cat.name}</div></div><div class="list-amount">${fmt(e.amount)}</div></div>`;
+  }).join('')||'<div class="empty"><div>📝</div><p>No expenses yet</p></div>';
+}
+
+function populateFormSelects(){
+  document.getElementById('f-category').innerHTML=DB.categories.map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
+  document.getElementById('f-event').innerHTML='<option value="">— none —</option>'+DB.events.map(e=>`<option value="${e.id}">${e.name}</option>`).join('');
+}
+function setTodayDate(){document.getElementById('f-date').value=new Date().toISOString().slice(0,10);}
+function clearForm(){document.getElementById('f-amount').value='';document.getElementById('f-desc').value='';setTodayDate();}
+function saveExpense(){
+  const amount=parseFloat(document.getElementById('f-amount').value);
+  const date=document.getElementById('f-date').value;
+  if(!amount||amount<=0){toast('Enter a valid amount','err');return;}
+  if(!date){toast('Select a date','err');return;}
+  DB.expenses.push({id:uid(),amount,date,categoryId:document.getElementById('f-category').value,eventId:document.getElementById('f-event').value,description:document.getElementById('f-desc').value.trim()});
+  save();clearForm();toast('Saved ✓');
+}
+
+function renderHistory(){
+  const fm=document.getElementById('filter-month').value,fc=document.getElementById('filter-cat').value;
+  const fe=document.getElementById('filter-event').value,fs=document.getElementById('filter-search').value.toLowerCase();
+  const catSel=document.getElementById('filter-cat');
+  if(catSel.options.length<=1)catSel.innerHTML='<option value="">All categories</option>'+DB.categories.map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
+  const evSel=document.getElementById('filter-event');
+  if(evSel.options.length<=1)evSel.innerHTML='<option value="">All events</option>'+DB.events.map(e=>`<option value="${e.id}">${e.name}</option>`).join('');
+  let rows=[...DB.expenses].sort((a,b)=>b.date.localeCompare(a.date));
+  if(fm)rows=rows.filter(e=>e.date.startsWith(fm));
+  if(fc)rows=rows.filter(e=>e.categoryId===fc);
+  if(fe)rows=rows.filter(e=>e.eventId===fe);
+  if(fs)rows=rows.filter(e=>(e.description||'').toLowerCase().includes(fs));
+  const el=document.getElementById('history-list');
+  if(!rows.length){el.innerHTML='<div class="empty"><div>🔍</div><p>No expenses found</p></div>';document.getElementById('history-total').textContent='';return;}
+  el.innerHTML='<div class="card">'+rows.map(e=>{
+    const cat=getCat(e.categoryId),ev=e.eventId?getEvent(e.eventId):null;
+    return `<div class="list-row"><div class="list-icon">${cat.icon}</div><div class="list-body"><div class="list-title">${e.description||cat.name}</div><div class="list-sub">${e.date}${ev?' · <span class="tag tag-event">'+ev.name+'</span>':''}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><div class="list-amount">${fmt(e.amount)}</div><div style="display:flex;gap:6px"><button class="btn-sm" onclick="openEdit('${e.id}')">Edit</button><button class="btn-danger-sm" onclick="deleteExpense('${e.id}')">Del</button></div></div></div>`;
+  }).join('')+'</div>';
+  document.getElementById('history-total').textContent=`${rows.length} transactions · ${fmt(rows.reduce((s,e)=>s+e.amount,0))}`;
+}
+function deleteExpense(id){if(!confirm('Delete?'))return;DB.expenses=DB.expenses.filter(e=>e.id!==id);save();renderHistory();toast('Deleted');}
+function openEdit(id){
+  editId=id;const e=DB.expenses.find(x=>x.id===id);
+  document.getElementById('ee-amount').value=e.amount;
+  document.getElementById('ee-date').value=e.date;
+  document.getElementById('ee-desc').value=e.description||'';
+  document.getElementById('ee-category').innerHTML=DB.categories.map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
+  document.getElementById('ee-category').value=e.categoryId;
+  document.getElementById('ee-event').innerHTML='<option value="">— none —</option>'+DB.events.map(ev=>`<option value="${ev.id}">${ev.name}</option>`).join('');
+  document.getElementById('ee-event').value=e.eventId||'';
+  document.getElementById('sheet-edit-bg').classList.add('open');
+}
+function saveEdit(){
+  const e=DB.expenses.find(x=>x.id===editId);
+  e.amount=parseFloat(document.getElementById('ee-amount').value);
+  e.date=document.getElementById('ee-date').value;
+  e.categoryId=document.getElementById('ee-category').value;
+  e.eventId=document.getElementById('ee-event').value;
+  e.description=document.getElementById('ee-desc').value.trim();
+  save();closeSheets();renderHistory();toast('Updated ✓');
+}
+
+function renderEvents(){
+  const el=document.getElementById('events-list');
+  if(!DB.events.length){el.innerHTML='<div class="empty"><div>🗓️</div><p>No events yet.<br>Tap "+ New" to create one.</p></div>';return;}
+  el.innerHTML=DB.events.map(ev=>{
+    const evExp=DB.expenses.filter(e=>e.eventId===ev.id);
+    const spent=evExp.reduce((s,e)=>s+e.amount,0),budget=ev.budget||0;
+    const pct=budget?Math.min((spent/budget)*100,100):0;
+    const cls=budget&&spent>budget?'over':budget&&spent>budget*.8?'warn':'';
+    const byCat={};evExp.forEach(e=>{byCat[e.categoryId]=(byCat[e.categoryId]||0)+e.amount;});
+    const topCats=Object.entries(byCat).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([cid,amt])=>{const c=getCat(cid);return `<span class="tag tag-cat">${c.icon} ${c.name}: ${fmt(amt)}</span>`;}).join(' ');
+    return `<div class="event-card"><div class="event-name">${ev.name}</div><div class="event-dates">${ev.startDate||''}${ev.endDate?' → '+ev.endDate:''}</div><div class="event-row"><div><div class="event-stat-label">Spent</div><div class="event-stat-val" style="color:var(--accent2)">${fmt(spent)}</div></div>${budget?`<div><div class="event-stat-label">Budget</div><div class="event-stat-val">${fmt(budget)}</div></div><div><div class="event-stat-label">Left</div><div class="event-stat-val" style="color:${spent>budget?'var(--red)':'var(--green)'}">${fmt(budget-spent)}</div></div>`:''}<div><div class="event-stat-label">Items</div><div class="event-stat-val">${evExp.length}</div></div></div>${budget?`<div class="progress-wrap"><div class="progress-bar ${cls}" style="width:${pct}%"></div></div>`:''}${topCats?`<div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px">${topCats}</div>`:''}<div class="event-actions"><button class="btn-sm" onclick="openEventSheet('${ev.id}')">Edit</button><button class="btn-danger-sm" onclick="deleteEvent('${ev.id}')">Delete</button></div></div>`;
+  }).join('');
+}
+function openEventSheet(id){
+  editEventId=id||null;
+  document.getElementById('sheet-event-title').textContent=id?'Edit event':'New event';
+  if(id){const ev=getEvent(id);document.getElementById('me-name').value=ev.name;document.getElementById('me-start').value=ev.startDate||'';document.getElementById('me-end').value=ev.endDate||'';document.getElementById('me-budget').value=ev.budget||'';}
+  else{['me-name','me-start','me-end','me-budget'].forEach(i=>document.getElementById(i).value='');}
+  document.getElementById('sheet-event-bg').classList.add('open');
+}
+function saveEvent(){
+  const name=document.getElementById('me-name').value.trim();
+  if(!name){toast('Enter event name','err');return;}
+  const data={name,startDate:document.getElementById('me-start').value,endDate:document.getElementById('me-end').value,budget:parseFloat(document.getElementById('me-budget').value)||0};
+  if(editEventId)Object.assign(getEvent(editEventId),data);
+  else DB.events.push({id:uid(),...data});
+  save();closeSheets();renderEvents();toast('Event saved ✓');
+}
+function deleteEvent(id){
+  if(!confirm('Delete event?'))return;
+  DB.expenses.forEach(e=>{if(e.eventId===id)e.eventId='';});
+  DB.events=DB.events.filter(e=>e.id!==id);
+  save();renderEvents();toast('Deleted');
+}
+
+function renderCategories(){
+  const m=thisMonth(),mExp=DB.expenses.filter(e=>e.date.startsWith(m));
+  document.getElementById('categories-list').innerHTML=DB.categories.map(cat=>{
+    const spent=mExp.filter(e=>e.categoryId===cat.id).reduce((s,e)=>s+e.amount,0),budget=cat.budget||0;
+    const pct=budget?Math.min((spent/budget)*100,100):0;
+    const cls=budget&&spent>budget?'over':budget&&spent>budget*.8?'warn':'';
+    return `<div class="cat-row"><div class="cat-meta"><span style="font-size:14px;font-weight:500">${cat.icon} ${cat.name}</span><div style="display:flex;align-items:center;gap:10px"><span style="font-size:13px;color:var(--muted)">${fmt(spent)}${budget?' / '+fmt(budget):''}</span><button class="btn-danger-sm" onclick="deleteCat('${cat.id}')">Del</button></div></div>${budget?`<div class="progress-wrap"><div class="progress-bar ${cls}" style="width:${pct}%"></div></div>`:''}</div>`;
+  }).join('');
+}
+function openCatSheet(){document.getElementById('sheet-cat-bg').classList.add('open');}
+function saveCat(){
+  const name=document.getElementById('mc-name').value.trim();
+  if(!name){toast('Enter name','err');return;}
+  DB.categories.push({id:uid(),name,icon:document.getElementById('mc-icon').value||'📦',budget:parseFloat(document.getElementById('mc-budget').value)||0});
+  save();closeSheets();renderCategories();toast('Category added ✓');
+}
+function deleteCat(id){if(!confirm('Delete?'))return;DB.categories=DB.categories.filter(c=>c.id!==id);save();renderCategories();toast('Deleted');}
+
+function loadSettings(){document.getElementById('s-currency').value=DB.settings.currency||'৳';document.getElementById('s-name').value=DB.settings.name||'';}
+function saveSettings(){DB.settings.currency=document.getElementById('s-currency').value||'৳';DB.settings.name=document.getElementById('s-name').value;save();toast('Saved ✓');}
+function exportData(){const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='khoroch-'+new Date().toISOString().slice(0,10)+'.json';a.click();}
+function importClick(){document.getElementById('import-file').click();}
+function importData(e){const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=ev=>{try{DB=JSON.parse(ev.target.result);save();location.reload();}catch{toast('Invalid file','err');}};r.readAsText(file);}
+function resetAll(){localStorage.removeItem('khoroch_db');location.reload();}
+
+function closeSheets(e){if(e&&e.target!==e.currentTarget)return;document.querySelectorAll('.sheet-bg').forEach(s=>s.classList.remove('open'));}
+
+// PWA service worker registration
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js').then(r=>{
+      console.log('SW registered');
+    }).catch(e=>console.log('SW failed:',e));
+  });
+}
+
+load();setTodayDate();populateFormSelects();
+document.getElementById('filter-month').value=thisMonth();
+renderDashboard();
+</script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+{
+  "name": "Khoroch - Expense Tracker",
+  "short_name": "Khoroch",
+  "description": "Personal expense tracker with event budgets",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f0f11",
+  "theme_color": "#7c6af7",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
